@@ -95,8 +95,13 @@ class Dot(Function):
   @staticmethod
   def backward(ctx, grad_output):
     input, weight = ctx.saved_tensors
-    grad_input = grad_output.dot(weight.T)
-    grad_weight = input.T.dot(grad_output)
+    if len(input.shape) == 1 and len(weight.shape) == 1:
+        grad_input = grad_output * weight
+        grad_weight = grad_output * input
+    else:
+        grad_input = grad_output.dot(weight.T)
+        grad_weight = input.T.dot(grad_output)
+
     return grad_input, grad_weight
 register('dot', Dot)
 register('matmul', Dot)
